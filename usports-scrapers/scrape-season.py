@@ -63,7 +63,7 @@ def feature_extraction(df):
 
     return df
 
-def scrape_box_score(team, year, output, verbose):
+def scrape_season(team, year, output, verbose):
     # TODO replace this with a proper function header (everything must be well documented!!!)
     # Team format: 
     # Year format: 2022-23
@@ -107,5 +107,5 @@ def scrape_box_score(team, year, output, verbose):
 if __name__ == "__main__":
 
     # Test using last years queens stats
-    scrape_box_score("Queens", "2022-23", "print", True)
+    scrape_season("Queens", "2022-23", "print", True)
 

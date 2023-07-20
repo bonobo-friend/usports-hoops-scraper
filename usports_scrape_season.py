@@ -98,7 +98,7 @@ def scrape_season(team, year, output, verbose):
     if verbose: print(team_data_final)
 
     # Output
-    if output == "print":
+    if output == "prints":
         print(team_data_final)
     elif output == "csv":
         team_data_final.to_csv(team + "-" + str(date.today()) + ".csv")

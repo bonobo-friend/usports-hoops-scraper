@@ -79,8 +79,7 @@ def scrape_season(team, year, output, verbose):
     if verbose: print(table)
 
     ## Extract info and stats from web page
-    # TODO these static numbers should instead be replaced by some sort of element check
-    # These numbers work for previous years data, won't work for current years
+    # TODO these static numbers should instead be replaced by some sort of element check, so it works for any year (currently only works for previous years)
     info_table = pd.read_html(str(table[5]))[0] # Player info
     stats_table = pd.read_html(str(table[9]))[0] # Player Stats 
     # winloss = pd.read_html(str(table[5]))[0] # Win/Loss Record # TODO must double check this is right (not being used atm so no rush)

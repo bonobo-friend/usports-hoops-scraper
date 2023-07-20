@@ -24,8 +24,7 @@ def scrape_game_ids(team, year):
     table = get_tables(url) # scrape table
 
     ## Extract info and stats from web page
-    # TODO these static numbers should instead be replaced by some sort of element check
-    # These numbers work for previous years data, won't work for current years
+    # TODO these static numbers should instead be replaced by some sort of element check, so it works for any year (currently only works for previous years)
     game_soup = bs.BeautifulSoup(str(table[7]), features="lxml") # Player info
 
     links = game_soup.find_all("a")

@@ -120,16 +120,15 @@ def scrape_game(game_id : str, year: str, output: str):
     data["Date"] = date
 
     # Output
-    if output == "prints":
-        print()
-        print()
-        
+    if output == "dataframe":
+        return data
+    if output == "print":
+        print(data)    
     elif output == "csv":
-        #team_data_final.to_csv(team + "-" + str(date.today()) + ".csv")
-        print
+        data.to_csv(game_id + "-" + year + ".csv")
 
 if __name__ == "__main__":
 
     # Test using last years queens stats
-    scrape_game("M20221103QUELAU", "2022-23", "print")
+    print(scrape_game("M20221103QUELAU", "2022-23", "dataframe"))
 

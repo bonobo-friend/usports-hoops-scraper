@@ -35,7 +35,7 @@ def clean_team(team):
     team = pd.DataFrame(team)
     team.reset_index(drop=True, inplace=True)
 
-    # team_name = team.iloc[0, 0][:team.iloc[0, 0].rfind(" ")] # Get team name, need to remove score
+    team_name = team.iloc[0, 0][:team.iloc[0, 0].rfind(" ")] # Get team name, need to remove score
     team.drop(index=[0, 1], inplace=True) # Get rid of row once done
     
     # Replace header with first row
@@ -70,6 +70,9 @@ def clean_team(team):
     # Drop columns
     team.drop(["3 Pt", "Field Goals", "Free Throws"], axis=1, inplace=True)
 
+    # Add team
+    team["Team"] = team_name
+    
     return team
 
 def feature_extraction(df):
@@ -109,13 +112,19 @@ def scrape_game(game_id, year, output):
     
     team1_clean = clean_team(team1)
     team2_clean = clean_team(team2)
- 
+    
     team1_extracted = feature_extraction(team1_clean)
     team2_extracted = feature_extraction(team2_clean)
     
+    data = pd.concat([team1_extracted, team2_extracted])
+    
+    data["Date"] = date
+
     # Output
     if output == "prints":
         print()
+        print()
+        
     elif output == "csv":
         #team_data_final.to_csv(team + "-" + str(date.today()) + ".csv")
         print

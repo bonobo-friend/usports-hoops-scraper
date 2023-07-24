@@ -14,7 +14,7 @@ def get_tables(url: str):
 
     return all_tables
 
-def split_table(data: pd.DataFrame) -> pd.DataFrame:
+def split_table(data: pd.DataFrame) -> tuple[pd.DataFrame, pd.DataFrame]:
     # Gets combined table data and returns the two teams in the same format
     # TODO this whole function could probably be refactored more effectively
     
@@ -34,7 +34,8 @@ def clean_team(team: pd.DataFrame) -> pd.DataFrame:
     
     team.reset_index(drop=True, inplace=True)
 
-    team_name = team.iloc[0, 0][:team.iloc[0, 0].rfind(" ")] # Get team name, need to remove score
+    team_name_rough = team.iloc[0, 0]
+    team_name = team_name_rough[:team_name_rough.rfind(" ")] # Get team name, need to remove score
     team.drop(index=[0, 1], inplace=True) # Get rid of row once done
     
     # Replace header with first row
@@ -96,7 +97,6 @@ def scrape_game(game_id : str, year: str, output: str):
     # game_id: 
     # year: 
     # output format: "print"/"csv"/"dataframe" #TODO add more output options (potentially dataframes, json, etc.)
-    
     url = "https://usportshoops.ca/history/show-game-report.php?Gender=MBB&Season=" + year + "&Gameid=" + game_id
 
     table = get_tables(url) # scrape table
@@ -109,14 +109,34 @@ def scrape_game(game_id : str, year: str, output: str):
     
     team1, team2 = split_table(stats_table) # Preprocess Data
     
-    team1_clean = clean_team(team1)
-    team2_clean = clean_team(team2)
-    
-    team1_extracted = feature_extraction(team1_clean)
-    team2_extracted = feature_extraction(team2_clean)
-    
-    data = pd.concat([team1_extracted, team2_extracted])
-    
+    # Account for one of the tables potentially being empty
+
+    if not team1.empty and not team2.empty: # Go on without intervention
+
+        team1_clean = clean_team(team1)
+        team2_clean = clean_team(team2)
+        
+        team1_extracted = feature_extraction(team1_clean)
+        team2_extracted = feature_extraction(team2_clean)
+        
+        data = pd.concat([team1_extracted, team2_extracted])
+        
+    elif team1.empty: # Missing team1
+
+        team2_clean = clean_team(team2)
+        
+        team2_extracted = feature_extraction(team2_clean)
+        
+        data = team2_extracted
+
+    elif team2.empty: # Missing team2
+
+        team1_clean = clean_team(team1)
+        
+        team1_extracted = feature_extraction(team1_clean)
+        
+        data = team1_extracted
+
     data["Date"] = date
 
     # Output

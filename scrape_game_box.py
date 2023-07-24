@@ -32,21 +32,21 @@ def split_table(data):
 
 def clean_team(team):
     
-    team_name = team.iloc[0, 0][:team.iloc[0, 0].rfind(" ")] # Get team name, need to remove score
-    team.drop(index=0, inplace=True) # Get rid of row once done
+    team = pd.DataFrame(team)
+    team.reset_index(drop=True, inplace=True)
+
+    # team_name = team.iloc[0, 0][:team.iloc[0, 0].rfind(" ")] # Get team name, need to remove score
+    team.drop(index=[0, 1], inplace=True) # Get rid of row once done
     
     # Replace header with first row
     team.columns = team.iloc[0]
-    team = team[1:]
+    team = team.loc[1:]
     team = team.loc[:, team.columns!="|"] # Drop styling rows
-    team.columns = ['Number', 'Player', 'drop1', 'Mins', '3 Pt', 'drop2', 'Field Goals', 'drop2', 'Free throws', 'drop3',
-                     'ORB', 'DRB', 'TRB', 'PF', 'A', 'TO', 'Blk', 'Stl', 'Pts']
-    """
+    team.columns = ['Number', 'Player', 'drop1', 'Mins', '3 Pt', 'drop2', 'Field Goals', 'drop2', 'Free Throws', 'drop3',
+                     'ORB', 'DRB', 'TRB', 'PF', 'A', 'To', 'Bl', 'St', 'Pts'] # Rename to naming convention in use
+    
     team = team[team.columns.drop(list(team.filter(regex="drop*")))] # Drop columns specificed to be dropped
     
-    # Drop team totals row
-    team.drop("* Team Totals", axis=0, inplace=True)
-
     def split_on_dash(col):
         return team[col].str.split("-", expand=True)
 
@@ -54,24 +54,21 @@ def clean_team(team):
     team[["3PM", "3PA"]] = split_on_dash("3 Pt")
     team[["FGM", "FGA"]] = split_on_dash("Field Goals")
     team[["FTM", "FTA"]] = split_on_dash("Free Throws")
-    team[["TORB", "TDRB"]] = split_on_dash("Rebounds")
-
+    
     # Rename columns
-    team.rename(columns={"3 Pt.1" : "3P%", "Field Goals.1" : "FG%", "Free Throws.1" : "FT%", "Rebounds.1" : "TRB"}, inplace=True)
-
-    # Adjust shooting percentages to actual percentages
-    for stat in ["3P%", "FG%", "FT%"]:
-        team[stat] = team[stat]/100
+    # team.rename(columns={"3 Pt.1" : "3P%", "Field Goals.1" : "FG%", "Free Throws.1" : "FT%", "Rebounds.1" : "TRB"}, inplace=True)
 
     # Fix datatypes
-    team[["3PM", "3PA", "FGM", "FGA", "FTM", "FTA", "TORB", "TDRB"]] = team[["3PM", "3PA", "FGM", "FGA", "FTM", "FTA", "TORB", "TDRB"]].astype("float64")
-        
+    team[['Mins', 'ORB', 'DRB', 'TRB', 'PF', 'A', 'To', 'Bl', 'St', 'Pts', '3PM', '3PA', 'FGM','FGA', 'FTM', 'FTA']] \
+        = team[['Mins', 'ORB', 'DRB', 'TRB', 'PF', 'A', 'To', 'Bl', 'St', 'Pts', '3PM', '3PA', 'FGM','FGA', 'FTM', 'FTA']].astype("float64")
+     
+    # Create and shooting percentages
+    for stat in ["3P%", "FG%", "FT%"]:
+        team[stat] = team[stat[:-1] + "M"] / team[stat[:-1] + "A"]
+        team.fillna(0, inplace=True)
+    
     # Drop columns
-    team.drop(["3 Pt", "Field Goals", "Free Throws", "Rebounds", "Hometown", "High School (Prior Team)"], axis=1, inplace=True)
-
-    # Fix NaN weight values
-    team["Wt"] = team["Wt"].fillna(-1)
-    """
+    team.drop(["3 Pt", "Field Goals", "Free Throws"], axis=1, inplace=True)
 
     return team
 
@@ -84,9 +81,11 @@ def feature_extraction(df):
 
     # Calculate true shooting
     df["TS%"] = df["Pts"]/(2*(df["FGA"] + (0.44 * df["FTA"])))
+    df.fillna(0, inplace=True) # Just in case a null value is created
 
     # Calculate box efficiency
-    df["EFF"] = (df["Pts"] + df["TRB"] + df["A"] + df["St"] + df["Bl"] - (df["FGA"] - df["FGM"]) - (df["FTA"] - df["FGM"]) - df["To"]) / df["GP"]
+    # Don't think this is useful
+    # df["EFF"] = (df["Pts"] + df["TRB"] + df["A"] + df["St"] + df["Bl"] - (df["FGA"] - df["FGM"]) - (df["FTA"] - df["FGM"]) - df["To"]) / df["GP"]
 
     return df
 
@@ -103,19 +102,18 @@ def scrape_game(game_id, year, output):
     # TODO these static numbers should instead be replaced by some sort of element check, so it works for any year (currently only works for previous years)
     stats_table = pd.read_html(str(table[5]))[0] # Player Stats 
     # winloss = pd.read_html(str(table[5]))[0] # Win/Loss Record # TODO must double check this is right (not being used atm so no rush)
-    print(stats_table)
 
     team1, team2 = split_table(stats_table) # Preprocess Data
     
-    print(clean_team(team1))
-    print(clean_team(team2))
-    
-    team_data_final = feature_extraction() # Feature extraction
-
+    team1_clean = clean_team(team1)
+    team2_clean = clean_team(team2)
+    print(team1_clean.columns)
+    team1_extracted = feature_extraction(team1_clean) # Feature extraction
+    print(team1_extracted)
 
     # Output
     if output == "prints":
-        print(team_data_final)
+        print()
     elif output == "csv":
         #team_data_final.to_csv(team + "-" + str(date.today()) + ".csv")
         print

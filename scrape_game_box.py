@@ -1,6 +1,7 @@
 
 # Import required libraries
 import pandas as pd
+import numpy as np
 import bs4 as bs
 import urllib.request
 from datetime import date
@@ -13,11 +14,36 @@ def get_tables(url):
 
     return all_tables
 
-def preprocess(info, stats):
-    print(info)
-    print(stats)
-    data = (stats.set_index("Player")).join((info.set_index("Player")), how="left")
+def split_table(data):
+    # Gets combined table data and returns the two teams in the same format
+    # TODO this whole function could probably be refactored more effectively
+    
+    data = pd.DataFrame(data)
+    
+    split_index = (data[0].str.contains("Totals")==True).idxmax() # Find first occurence of "Totals" which signifies the split between the two tables
+    
+    team1 = data.iloc[:split_index]
+    team2 = data.iloc[split_index:]
 
+    team2.drop(team2.tail(2).index, inplace=True)
+    team2.drop(team2.head(2).index, inplace=True)
+
+    return team1, team2
+
+def clean_team(team):
+    
+    team_name = team1.iloc[0, 0][:team1.iloc[0, 0].rfind(" ")] # Get team name, need to remove score
+    team.drop(index=0, inplace=True) # Get rid of row once done
+    
+    # Replace header with first row
+    team1.columns = team1.iloc[0]
+    team1 = team1[1:]
+    team1 = team1.loc[:, team1.columns!="|"] # Drop styling rows
+    team1.columns = ['Number', 'Player', 'drop1', 'Mins', '3 Pt', 'drop2', 'Field Goals', 'drop2', 'Free throws', 'drop3',
+                     'ORB', 'DRB', 'TRB', 'PF', 'A', 'TO', 'Blk', 'Stl', 'Pts']
+    
+    team1 = team1[team1.columns.drop(list(team1.filter(regex="drop*")))] # Drop columns specificed to be dropped
+    
     # Drop team totals row
     data.drop("* Team Totals", axis=0, inplace=True)
 
@@ -63,48 +89,35 @@ def feature_extraction(df):
 
     return df
 
-def scrape_season(team, year, output, verbose):
+def scrape_game(game_id, year, output):
     # TODO replace this with a proper function header (everything must be well documented!!!)
-    # Team format: 
-    # Year format: 2022-23
-    # output format: "print"/"csv" #TODO add more output options (potentially dataframes, json, etc.)
-    # verbose format: bool
+    # game_id: 
+    # year: 
+    # output format: "print"/"csv"/"dataframe" #TODO add more output options (potentially dataframes, json, etc.)
     
-    url = "https://usportshoops.ca/history/teamseason.php?Gender=MBB&Season=" + year + "&Team=" + team
-    
-    if verbose: print(url)
+    url = "https://usportshoops.ca/history/show-game-report.php?Gender=MBB&Season=" + year + "&Gameid=" + game_id
 
     table = get_tables(url) # scrape table
-
-    if verbose: print(table)
-
     ## Extract info and stats from web page
     # TODO these static numbers should instead be replaced by some sort of element check, so it works for any year (currently only works for previous years)
-    info_table = pd.read_html(str(table[5]))[0] # Player info
-    stats_table = pd.read_html(str(table[9]))[0] # Player Stats 
+    stats_table = pd.read_html(str(table[5]))[0] # Player Stats 
     # winloss = pd.read_html(str(table[5]))[0] # Win/Loss Record # TODO must double check this is right (not being used atm so no rush)
+    print(stats_table)
 
-    if verbose:
-        print(info_table)
-        print(stats_table)
-
-    team_data_preprocess = preprocess(info_table, stats_table) # Preprocess Data
-
-    if verbose: print(team_data_preprocess)
+    data_preprocess = preprocess(stats_table) # Preprocess Data
     
-    team_data_final = feature_extraction(team_data_preprocess) # Feature extraction
+    team_data_final = feature_extraction(data_preprocess) # Feature extraction
 
-    if verbose: print(team_data_final)
 
     # Output
     if output == "prints":
         print(team_data_final)
     elif output == "csv":
-        team_data_final.to_csv(team + "-" + str(date.today()) + ".csv")
-        if verbose: print("Save complete at:", str(team + "-" + str(date.today()) + ".csv"))
+        #team_data_final.to_csv(team + "-" + str(date.today()) + ".csv")
+        print
 
 if __name__ == "__main__":
 
     # Test using last years queens stats
-    scrape_season("Queens", "2022-23", "print", True)
+    scrape_game("M20221103QUELAU", "2022-23", "print")
 

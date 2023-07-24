@@ -101,16 +101,18 @@ def scrape_game(game_id, year, output):
     ## Extract info and stats from web page
     # TODO these static numbers should instead be replaced by some sort of element check, so it works for any year (currently only works for previous years)
     stats_table = pd.read_html(str(table[5]))[0] # Player Stats 
-    # winloss = pd.read_html(str(table[5]))[0] # Win/Loss Record # TODO must double check this is right (not being used atm so no rush)
-
+    date_table = pd.read_html(str(table[3]))[0] # Player Stats 
+    
+    date = pd.to_datetime(date_table.iloc[0, 1]) # Hardcoded but should work in every case
+    
     team1, team2 = split_table(stats_table) # Preprocess Data
     
     team1_clean = clean_team(team1)
     team2_clean = clean_team(team2)
-    print(team1_clean.columns)
-    team1_extracted = feature_extraction(team1_clean) # Feature extraction
-    print(team1_extracted)
-
+ 
+    team1_extracted = feature_extraction(team1_clean)
+    team2_extracted = feature_extraction(team2_clean)
+    
     # Output
     if output == "prints":
         print()

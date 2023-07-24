@@ -6,7 +6,7 @@ import urllib.request
 from datetime import date
 
 
-def get_tables(url):
+def get_tables(url : str):
 
     source = urllib.request.urlopen(url).read()
     soup = bs.BeautifulSoup(source,'lxml')
@@ -14,7 +14,7 @@ def get_tables(url):
 
     return all_tables
 
-def scrape_game_ids(team, year):
+def scrape_game_ids(team : str, year : str) -> list[str]:
     # TODO replace this with a proper function header (everything must be well documented!!!)
     # Team format: 
     # Year format: 2022-23
@@ -38,4 +38,5 @@ if __name__ == "__main__":
 
     # Test using last years queens stats
     print(scrape_game_ids("Queens", "2022-23"))
+    
 

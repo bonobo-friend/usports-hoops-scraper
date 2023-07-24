@@ -6,7 +6,7 @@ import bs4 as bs
 import urllib.request
 from datetime import date
 
-def get_tables(url):
+def get_tables(url: str):
 
     source = urllib.request.urlopen(url).read()
     soup = bs.BeautifulSoup(source,'lxml')
@@ -14,7 +14,7 @@ def get_tables(url):
 
     return all_tables
 
-def split_table(data):
+def split_table(data: pd.DataFrame) -> pd.DataFrame:
     # Gets combined table data and returns the two teams in the same format
     # TODO this whole function could probably be refactored more effectively
     
@@ -30,9 +30,8 @@ def split_table(data):
 
     return team1, team2
 
-def clean_team(team):
+def clean_team(team: pd.DataFrame) -> pd.DataFrame:
     
-    team = pd.DataFrame(team)
     team.reset_index(drop=True, inplace=True)
 
     team_name = team.iloc[0, 0][:team.iloc[0, 0].rfind(" ")] # Get team name, need to remove score
@@ -75,7 +74,7 @@ def clean_team(team):
     
     return team
 
-def feature_extraction(df):
+def feature_extraction(df: pd.DataFrame) -> pd.DataFrame:
     
     # Calculate 2pt stats
     df["2PA"] = df["FGA"] - df["3PA"]
@@ -92,7 +91,7 @@ def feature_extraction(df):
 
     return df
 
-def scrape_game(game_id, year, output):
+def scrape_game(game_id : str, year: str, output: str):
     # TODO replace this with a proper function header (everything must be well documented!!!)
     # game_id: 
     # year: 

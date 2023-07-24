@@ -5,7 +5,7 @@ import bs4 as bs
 import urllib.request
 from datetime import date
 
-def get_tables(url):
+def get_tables(url : str):
 
     source = urllib.request.urlopen(url).read()
     soup = bs.BeautifulSoup(source,'lxml')
@@ -13,7 +13,7 @@ def get_tables(url):
 
     return all_tables
 
-def preprocess(info, stats):
+def preprocess(info : pd.DataFrame, stats : pd.DataFrame) -> pd.DataFrame:
     
     data = (stats.set_index("Player")).join((info.set_index("Player")), how="left")
 
@@ -47,7 +47,7 @@ def preprocess(info, stats):
 
     return data
 
-def feature_extraction(df):
+def feature_extraction(df : pd.DataFrame) -> pd.DataFrame:
     
     # Calculate 2pt stats
     df["2PA"] = df["FGA"] - df["3PA"]
@@ -62,7 +62,7 @@ def feature_extraction(df):
 
     return df
 
-def scrape_season(team, year, output, verbose):
+def scrape_season(team : str, year : str, output : str, verbose : bool):
     # TODO replace this with a proper function header (everything must be well documented!!!)
     # Team format: 
     # Year format: 2022-23

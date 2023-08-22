@@ -31,27 +31,12 @@ def preprocess(info : pd.DataFrame, stats : pd.DataFrame) -> pd.DataFrame:
     data[["3PM", "3PA", "FGM", "FGA", "FTM", "FTA", "TORB", "TDRB"]] = data[["3PM", "3PA", "FGM", "FGA", "FTM", "FTA", "TORB", "TDRB"]].astype("float64")
         
     # Drop columns
-    data.drop(["3 Pt", "Field Goals", "Free Throws", "Rebounds", "Hometown", "High School (Prior Team)"], axis=1, inplace=True)
+    data.drop(["3 Pt", "Field Goals", "Free Throws", "Rebounds", "Hometown", "High School (Prior Team)"], axis=1, inplace=True) # Unused
 
     # Fix NaN weight values
     data["Wt"] = data["Wt"].fillna(-1)
 
     return data
-
-def feature_extraction(df : pd.DataFrame) -> pd.DataFrame:
-    
-    # Calculate 2pt stats
-    df["2PA"] = df["FGA"] - df["3PA"]
-    df["2PM"] = df["FGM"] - df["3PM"]
-    df["2P%"] = df["2PM"] / df["2PA"]
-
-    # Calculate true shooting
-    df["TS%"] = df["Pts"]/(2*(df["FGA"] + (0.44 * df["FTA"])))
-
-    # Calculate box efficiency
-    df["EFF"] = (df["Pts"] + df["TRB"] + df["A"] + df["St"] + df["Bl"] - (df["FGA"] - df["FGM"]) - (df["FTA"] - df["FGM"]) - df["To"]) / df["GP"]
-
-    return df
 
 def scrape_season(team : str, year : str, output : str):
     # TODO replace this with a proper function header (everything must be well documented!!!)
@@ -72,14 +57,12 @@ def scrape_season(team : str, year : str, output : str):
             elif "3 Pt.1" in temp_df.columns:
                 stats_table = temp_df
         except:
-            pass
-
-    # TODO these static numbers should instead be replaced by some sort of element check, so it works for any year (currently only works for previous years)
-    # winloss = pd.read_html(str(table[5]))[0] # Win/Loss Record # TODO must double check this is right (not being used atm so no rush)
+            pass   
+    # winloss = pd.read_html(str(table[5]))[0] # Win/Loss Record # TODO include this? 
 
     team_data_preprocess = preprocess(info_table, stats_table) # Preprocess Data
     
-    team_data_final = feature_extraction(team_data_preprocess) # Feature extraction
+    team_data_final = common_util.feature_extraction(team_data_preprocess) # Feature extraction
 
     # Output
     if output == "print":

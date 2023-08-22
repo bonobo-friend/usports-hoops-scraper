@@ -8,12 +8,12 @@ def split_table(data: pd.DataFrame) -> tuple[pd.DataFrame, pd.DataFrame]:
     # TODO this whole function could probably be refactored more effectively
     
     data = pd.DataFrame(data)
-    
+
     split_index = (data[0].str.contains("Totals")==True).idxmax() # Find first occurence of "Totals" which signifies the split between the two tables
     
     team1 = data.iloc[:split_index]
     team2 = data.iloc[split_index:]
-
+    
     team2.drop(team2.tail(2).index, inplace=True)
     team2.drop(team2.head(2).index, inplace=True)
 
@@ -36,6 +36,8 @@ def clean_team(team: pd.DataFrame) -> pd.DataFrame:
     
     team = team[team.columns.drop(list(team.filter(regex="drop*")))] # Drop columns specificed to be dropped
     
+    team = team[team["Player"].str.contains("team-")==False] # Drop any of the team-{team} rows that appear
+
     def split_on_dash(col):
         return team[col].str.split("-", expand=True)
 
@@ -123,5 +125,5 @@ def scrape_game(game_id : str, year: str, output: str):
 if __name__ == "__main__":
 
     # Test using last years queens stats
-    print(scrape_game("M20221103QUELAU", "2022-23", "dataframe"))
+    scrape_game("M20221103QUELAU", "2022-23", "print")
 

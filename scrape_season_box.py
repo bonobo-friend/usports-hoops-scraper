@@ -61,12 +61,20 @@ def scrape_season(team : str, year : str, output : str):
     
     url = "https://usportshoops.ca/history/teamseason.php?Gender=MBB&Season=" + year + "&Team=" + team
     
-    table = common_util.get_tables(url) # scrape table
+    tables = common_util.get_tables(url) # scrape tables
 
-    ## Extract info and stats from web page
+    # Extract info and stats from web page by matching what appears in column headers
+    for table in tables:
+        try:
+            temp_df = pd.read_html(str(table))[0]
+            if "Hometown" in temp_df.columns:
+                info_table = temp_df
+            elif "3 Pt.1" in temp_df.columns:
+                stats_table = temp_df
+        except:
+            pass
+
     # TODO these static numbers should instead be replaced by some sort of element check, so it works for any year (currently only works for previous years)
-    info_table = pd.read_html(str(table[5]))[0] # Player info
-    stats_table = pd.read_html(str(table[9]))[0] # Player Stats 
     # winloss = pd.read_html(str(table[5]))[0] # Win/Loss Record # TODO must double check this is right (not being used atm so no rush)
 
     team_data_preprocess = preprocess(info_table, stats_table) # Preprocess Data

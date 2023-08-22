@@ -2,17 +2,8 @@
 # Import required libraries
 import pandas as pd
 import bs4 as bs
-import urllib.request
-from datetime import date
+import common_util
 
-
-def get_tables(url : str):
-
-    source = urllib.request.urlopen(url).read()
-    soup = bs.BeautifulSoup(source,'lxml')
-    all_tables = soup.find_all('table')
-
-    return all_tables
 
 def scrape_game_ids(team : str, year : str) -> list[str]:
     # TODO replace this with a proper function header (everything must be well documented!!!)
@@ -21,7 +12,7 @@ def scrape_game_ids(team : str, year : str) -> list[str]:
     
     url = "https://usportshoops.ca/history/teamseason.php?Gender=MBB&Season=" + year + "&Team=" + team
     
-    table = get_tables(url) # scrape table
+    table = common_util.get_tables(url) # scrape table
 
     ## Extract info and stats from web page
     # TODO these static numbers should instead be replaced by some sort of element check, so it works for any year (currently only works for previous years)

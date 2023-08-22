@@ -11,7 +11,7 @@ def get_tables(url: str):
 
     return all_tables
 
-def feature_extraction(df: pd.DataFrame, calc_eff: bool) -> pd.DataFrame:
+def feature_extraction(df: pd.DataFrame, calc_eff=True) -> pd.DataFrame:
     
     # Calculate 2pt stats
     df["2PA"] = df["FGA"] - df["3PA"]

@@ -64,22 +64,6 @@ def clean_team(team: pd.DataFrame) -> pd.DataFrame:
     
     return team
 
-def feature_extraction(df: pd.DataFrame) -> pd.DataFrame:
-    
-    # Calculate 2pt stats
-    df["2PA"] = df["FGA"] - df["3PA"]
-    df["2PM"] = df["FGM"] - df["3PM"]
-    df["2P%"] = df["2PM"] / df["2PA"]
-
-    # Calculate true shooting
-    df["TS%"] = df["Pts"]/(2*(df["FGA"] + (0.44 * df["FTA"])))
-    df.fillna(0, inplace=True) # Just in case a null value is created
-
-    # Calculate box efficiency
-    # Don't think this is useful
-    # df["EFF"] = (df["Pts"] + df["TRB"] + df["A"] + df["St"] + df["Bl"] - (df["FGA"] - df["FGM"]) - (df["FTA"] - df["FGM"]) - df["To"]) / df["GP"]
-
-    return df
 
 def scrape_game(game_id : str, year: str, output: str):
     # TODO replace this with a proper function header (everything must be well documented!!!)
@@ -105,8 +89,8 @@ def scrape_game(game_id : str, year: str, output: str):
         team1_clean = clean_team(team1)
         team2_clean = clean_team(team2)
         
-        team1_extracted = feature_extraction(team1_clean)
-        team2_extracted = feature_extraction(team2_clean)
+        team1_extracted = common_util.feature_extraction(team1_clean, calc_eff=False)
+        team2_extracted = common_util.feature_extraction(team2_clean, calc_eff=False)
         
         data = pd.concat([team1_extracted, team2_extracted])
         
@@ -114,7 +98,7 @@ def scrape_game(game_id : str, year: str, output: str):
 
         team2_clean = clean_team(team2)
         
-        team2_extracted = feature_extraction(team2_clean)
+        team2_extracted = common_util.feature_extraction(team2_clean, calc_eff=False)
         
         data = team2_extracted
 
@@ -122,7 +106,7 @@ def scrape_game(game_id : str, year: str, output: str):
 
         team1_clean = clean_team(team1)
         
-        team1_extracted = feature_extraction(team1_clean)
+        team1_extracted = common_util.feature_extraction(team1_clean, calc_eff=False)
         
         data = team1_extracted
 

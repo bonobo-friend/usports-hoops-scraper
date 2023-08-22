@@ -53,20 +53,15 @@ def feature_extraction(df : pd.DataFrame) -> pd.DataFrame:
 
     return df
 
-def scrape_season(team : str, year : str, output : str, verbose : bool):
+def scrape_season(team : str, year : str, output : str):
     # TODO replace this with a proper function header (everything must be well documented!!!)
     # Team format: 
     # Year format: 2022-23
     # output format: "print"/"csv" #TODO add more output options (potentially dataframes, json, etc.)
-    # verbose format: bool
     
     url = "https://usportshoops.ca/history/teamseason.php?Gender=MBB&Season=" + year + "&Team=" + team
     
-    if verbose: print(url)
-
     table = common_util.get_tables(url) # scrape table
-
-    if verbose: print(table)
 
     ## Extract info and stats from web page
     # TODO these static numbers should instead be replaced by some sort of element check, so it works for any year (currently only works for previous years)
@@ -74,27 +69,18 @@ def scrape_season(team : str, year : str, output : str, verbose : bool):
     stats_table = pd.read_html(str(table[9]))[0] # Player Stats 
     # winloss = pd.read_html(str(table[5]))[0] # Win/Loss Record # TODO must double check this is right (not being used atm so no rush)
 
-    if verbose:
-        print(info_table)
-        print(stats_table)
-
     team_data_preprocess = preprocess(info_table, stats_table) # Preprocess Data
-
-    if verbose: print(team_data_preprocess)
     
     team_data_final = feature_extraction(team_data_preprocess) # Feature extraction
 
-    if verbose: print(team_data_final)
-
     # Output
-    if output == "prints":
+    if output == "print":
         print(team_data_final)
     elif output == "csv":
         team_data_final.to_csv(team + "-" + str(date.today()) + ".csv")
-        if verbose: print("Save complete at:", str(team + "-" + str(date.today()) + ".csv"))
 
 if __name__ == "__main__":
 
     # Test using last years queens stats
-    scrape_season("Queens", "2022-23", "print", True)
+    scrape_season("Queens", "2022-23", "print")
 

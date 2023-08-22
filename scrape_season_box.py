@@ -1,17 +1,8 @@
 
 # Import required libraries
 import pandas as pd
-import bs4 as bs
-import urllib.request
 from datetime import date
-
-def get_tables(url : str):
-
-    source = urllib.request.urlopen(url).read()
-    soup = bs.BeautifulSoup(source,'lxml')
-    all_tables = soup.find_all('table')
-
-    return all_tables
+import common_util
 
 def preprocess(info : pd.DataFrame, stats : pd.DataFrame) -> pd.DataFrame:
     
@@ -73,7 +64,7 @@ def scrape_season(team : str, year : str, output : str, verbose : bool):
     
     if verbose: print(url)
 
-    table = get_tables(url) # scrape table
+    table = common_util.get_tables(url) # scrape table
 
     if verbose: print(table)
 

@@ -1,18 +1,7 @@
 
 # Import required libraries
 import pandas as pd
-import numpy as np
-import bs4 as bs
-import urllib.request
-from datetime import date
-
-def get_tables(url: str):
-
-    source = urllib.request.urlopen(url).read()
-    soup = bs.BeautifulSoup(source,'lxml')
-    all_tables = soup.find_all('table')
-
-    return all_tables
+import common_util
 
 def split_table(data: pd.DataFrame) -> tuple[pd.DataFrame, pd.DataFrame]:
     # Gets combined table data and returns the two teams in the same format
@@ -99,7 +88,7 @@ def scrape_game(game_id : str, year: str, output: str):
     # output format: "print"/"csv"/"dataframe" #TODO add more output options (potentially dataframes, json, etc.)
     url = "https://usportshoops.ca/history/show-game-report.php?Gender=MBB&Season=" + year + "&Gameid=" + game_id
 
-    table = get_tables(url) # scrape table
+    table = common_util.get_tables(url) # scrape table
     ## Extract info and stats from web page
     # TODO these static numbers should instead be replaced by some sort of element check, so it works for any year (currently only works for previous years)
     stats_table = pd.read_html(str(table[5]))[0] # Player Stats 

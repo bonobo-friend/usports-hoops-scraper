@@ -19,7 +19,7 @@ def split_table(data: pd.DataFrame) -> tuple[pd.DataFrame, pd.DataFrame]:
 
     return team1, team2
 
-def clean_team(team: pd.DataFrame) -> pd.DataFrame:
+def clean_team(team: pd.DataFrame, game_id: str) -> pd.DataFrame:
     
     team.reset_index(drop=True, inplace=True)
 
@@ -61,9 +61,10 @@ def clean_team(team: pd.DataFrame) -> pd.DataFrame:
     # Drop columns
     team.drop(["3 Pt", "Field Goals", "Free Throws"], axis=1, inplace=True)
 
-    # Add team
+    # Add team name and game id
     team["Team"] = team_name
-    
+    team["game_id"] = game_id
+
     return team
 
 
@@ -79,7 +80,7 @@ def scrape_game(game_id : str, year: str, output: str):
     # TODO these static numbers should instead be replaced by some sort of element check, so it works for any year (currently only works for previous years)
     stats_table = pd.read_html(str(table[5]))[0] # Player Stats 
     date_table = pd.read_html(str(table[3]))[0] # Player Stats 
-    
+
     date = pd.to_datetime(date_table.iloc[0, 1]) # Hardcoded but should work in every case
     
     team1, team2 = split_table(stats_table) # Preprocess Data
@@ -88,8 +89,8 @@ def scrape_game(game_id : str, year: str, output: str):
 
     if not team1.empty and not team2.empty: # Go on without intervention
 
-        team1_clean = clean_team(team1)
-        team2_clean = clean_team(team2)
+        team1_clean = clean_team(team1, game_id)
+        team2_clean = clean_team(team2, game_id)
         
         team1_extracted = common_util.feature_extraction(team1_clean, calc_eff=False)
         team2_extracted = common_util.feature_extraction(team2_clean, calc_eff=False)
@@ -98,7 +99,7 @@ def scrape_game(game_id : str, year: str, output: str):
         
     elif team1.empty: # Missing team1
 
-        team2_clean = clean_team(team2)
+        team2_clean = clean_team(team2, game_id)
         
         team2_extracted = common_util.feature_extraction(team2_clean, calc_eff=False)
         
@@ -106,7 +107,7 @@ def scrape_game(game_id : str, year: str, output: str):
 
     elif team2.empty: # Missing team2
 
-        team1_clean = clean_team(team1)
+        team1_clean = clean_team(team1, game_id)
         
         team1_extracted = common_util.feature_extraction(team1_clean, calc_eff=False)
         
@@ -125,5 +126,6 @@ def scrape_game(game_id : str, year: str, output: str):
 if __name__ == "__main__":
 
     # Test using last years queens stats
-    scrape_game("M20221103QUELAU", "2022-23", "print")
+    print(scrape_game("M20221103QUELAU", "2022-23", "dataframe")[["Player", "game_id"]])
+
 

@@ -1,0 +1,22 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "USports_Scraper"
+version = "0.0.1"
+authors = [
+  { name="Owen Rocchi", email="orocchi27@gmail.com" },
+]
+description = "Tool to quickly retrieve data from the USports Hoops website"
+readme = "README.md"
+requires-python = ">=3.7"
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+]
+
+[project.urls]
+"Homepage" = "https://github.com/bonobo-friend/usports-hoops-scraper"
+"Bug Tracker" = "https://github.com/bonobo-friend/usports-hoops-scraper/issues"

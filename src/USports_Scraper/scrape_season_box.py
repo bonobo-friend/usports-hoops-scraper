@@ -2,7 +2,7 @@
 # Import required libraries
 import pandas as pd
 from datetime import date
-import common_util
+import src.USports_Scraper.common_util as common_util
 
 def preprocess(info : pd.DataFrame, stats : pd.DataFrame) -> pd.DataFrame:
     

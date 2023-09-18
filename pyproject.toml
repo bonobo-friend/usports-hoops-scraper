@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "USports_Scraper"
-version = "0.0.1"
+version = "0.0.4"
 authors = [
   { name="Owen Rocchi", email="orocchi27@gmail.com" },
 ]

@@ -2,7 +2,7 @@
 # Import required libraries
 import pandas as pd
 from datetime import date
-import common_util as common_util
+import common_util
 
 def preprocess(info : pd.DataFrame, stats : pd.DataFrame) -> pd.DataFrame:
     

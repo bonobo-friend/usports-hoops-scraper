@@ -2,7 +2,7 @@
 # Import required libraries
 import pandas as pd
 import bs4 as bs
-import common_util as common_util
+import common_util
 
 
 def scrape_game_ids(team : str, year : str) -> list[str]:

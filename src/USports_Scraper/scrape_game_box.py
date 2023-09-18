@@ -1,7 +1,7 @@
 
 # Import required libraries
 import pandas as pd
-import src.USports_Scraper.common_util as common_util
+import common_util as common_util
 
 def split_table(data: pd.DataFrame) -> tuple[pd.DataFrame, pd.DataFrame]:
     # Gets combined table data and returns the two teams in the same format
